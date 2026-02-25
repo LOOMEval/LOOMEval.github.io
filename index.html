@@ -3387,7 +3387,7 @@
             const selectedModelNames = Array.from(document.querySelectorAll('#modelCheckboxes input:checked')).map(cb => cb.value);
             
             // 维度标签
-            const labels = ["General", "Faithfulness", "Reasoning", "Retrieval", "Generation", "Specialization", "Reward"];
+            const labels = ["General", "Faithfulness", "Reasoning", "Retrieval", "Generation", "Multilingual", "Reward"];
             
             const datasets = selectedModelNames.map(name => {
                 const modelObj = models.find(m => m.name === name);
