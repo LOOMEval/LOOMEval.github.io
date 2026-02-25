@@ -1266,7 +1266,28 @@
             border: none;
             color: var(--text-primary);
         }
+    /* 修改容器，允许水平滚动 */
+    .table-container {
+        background: white;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-light);
+        overflow-x: auto; /* 关键修改：去掉 overflow: hidden，改为 overflow-x: auto */
+        margin-bottom: 3rem;
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+    }
 
+    .modern-table {
+        width: 100%;
+        min-width: 1400px; /* 增加最小宽度，适配17列数据 */
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    /* 关键修改：强制表头和单元格不换行，保持整洁并撑开表格 */
+    .modern-table th, .modern-table td {
+        white-space: nowrap; 
+    }
         .copy-button {
             position: absolute;
             top: 1rem;
@@ -2046,7 +2067,8 @@
                 <button class="capability-btn" data-capability="reasoning">Reasoning</button>
                 <button class="capability-btn" data-capability="retrieval">Retrieval</button>
                 <button class="capability-btn" data-capability="generation">Generation</button>
-                <button class="capability-btn" data-capability="specialization">Specialization</button>
+                <button class="capability-btn" data-capability="multilingual">Multilingual</button> 
+                <button class="capability-btn" data-capability="reward">Reward</button>
             </div>
             
             <div class="capability-info clean-card animate-on-scroll" id="capability-info">
@@ -2978,101 +3000,102 @@
             sequence: testSequence,
             // 3. 重新映射能力分类以匹配新数据
             capabilities: {
-                "overview": {
-                    "description": "Comprehensive analysis across all evaluation dimensions.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "General", type: "capability", sortable: true },
-                        { name: "Faithfulness", type: "capability", sortable: true },
-                        { name: "Reasoning", type: "capability", sortable: true },
-                        { name: "Retrieval", type: "capability", sortable: true },
-                        { name: "Generation", type: "capability", sortable: true },
-                        { name: "Specialization", type: "capability", sortable: true },
-                        { name: "Reward", type: "capability", sortable: true }
-                    ]
-                },
-                "general": {
-                    "tests": ["LEval", "RULER", "LongBench_EN", "LongBench_ZH"],
-                    "description": "Assessment of text understanding across English and Chinese contexts.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "LEval", type: "test", sortable: true },
-                        { name: "RULER", type: "test", sortable: true },
-                        { name: "LongBench_EN", type: "test", sortable: true },
-                        { name: "LongBench_ZH", type: "test", sortable: true }
-                    ]
-                },
-                "faithfulness": {
-                    "tests": ["L_CiteEval"],
-                    "description": "Evaluates citation quality and hallucination avoidance.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "L_CiteEval", type: "test", sortable: true }
-                    ]
-                },
-                "reasoning": {
-                    "tests": ["Counting_Stars_EN", "LVEval_EN", "LongBench_v2", "Counting_Stars_ZH", "LVEval_ZH"],
-                    "description": "Logic, math, and multi-step reasoning in both languages.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "Counting_Stars_EN", type: "test", sortable: true },
-                        { name: "LVEval_EN", type: "test", sortable: true },
-                        { name: "LongBench_v2", type: "test", sortable: true },
-                        { name: "LVEval_ZH", type: "test", sortable: true }
-                    ]
-                },
-                "retrieval": {
-                    "tests": ["NIAH", "MRCR"],
-                    "description": "Needle-in-a-Haystack and Multi-Round Conversational Retrieval.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "NIAH", type: "test", sortable: true },
-                        { name: "MRCR", type: "test", sortable: true }
-                    ]
-                },
-                "generation": {
-                    "tests": ["LongWriter"],
-                    "description": "Long-form text generation quality.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "LongWriter", type: "test", sortable: true }
-                    ]
-                },
-                "specialization": {
-                    "tests": ["LIBRA", "CLongEval"],
-                    "description": "Specialized domain knowledge tests.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "LIBRA", type: "test", sortable: true },
-                        { name: "CLongEval", type: "test", sortable: true }
-                    ]
-                },
-                "reward": { // 新增的 Reward 分类
-                    "tests": ["LongRewardBench", "MemRewardBench"],
-                    "description": "Reward modeling capabilities for long context.",
-                    "columns": [
-                        { name: "Rank", type: "fixed", sortable: true },
-                        { name: "Model", type: "fixed", sortable: false },
-                        { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "LongRewardBench", type: "test", sortable: true },
-                        { name: "MemRewardBench", type: "test", sortable: true }
-                    ]
-                }
+            "overview": {
+                "description": "Comprehensive analysis across all evaluation dimensions.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "General", type: "capability", sortable: true },
+                    { name: "Faithfulness", type: "capability", sortable: true },
+                    { name: "Reasoning", type: "capability", sortable: true },
+                    { name: "Retrieval", type: "capability", sortable: true },
+                    { name: "Generation", type: "capability", sortable: true },
+                    { name: "Multilingual", type: "capability", sortable: true }, // 修改为 Multilingual
+                    { name: "Reward", type: "capability", sortable: true }
+                ]
+            },
+            "general": {
+                "tests": ["LEval", "RULER", "LongBench_EN"], // 移除了 LongBench_ZH
+                "description": "Assessment of text understanding in general English contexts.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "LEval", type: "test", sortable: true },
+                    { name: "RULER", type: "test", sortable: true },
+                    { name: "LongBench_EN", type: "test", sortable: true }
+                ]
+            },
+            "faithfulness": {
+                "tests": ["L_CiteEval"],
+                "description": "Evaluates citation quality and hallucination avoidance.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "L_CiteEval", type: "test", sortable: true }
+                ]
+            },
+            "reasoning": {
+                "tests": ["Counting_Stars_EN", "LVEval_EN", "LongBench_v2"], // 移除了 ZH 数据集
+                "description": "Logic, math, and multi-step reasoning in English.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "Counting_Stars_EN", type: "test", sortable: true },
+                    { name: "LVEval_EN", type: "test", sortable: true },
+                    { name: "LongBench_v2", type: "test", sortable: true }
+                ]
+            },
+            "retrieval": {
+                "tests": ["NIAH", "MRCR"],
+                "description": "Needle-in-a-Haystack and Multi-Round Conversational Retrieval.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "NIAH", type: "test", sortable: true },
+                    { name: "MRCR", type: "test", sortable: true }
+                ]
+            },
+            "generation": {
+                "tests": ["LongWriter"],
+                "description": "Long-form text generation quality.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "LongWriter", type: "test", sortable: true }
+                ]
+            },
+            "multilingual": { // 替换原来的 specialization
+                "tests": ["LIBRA", "Counting_Stars_ZH", "LongBench_ZH", "CLongEval", "LVEval_ZH"],
+                "description": "Multilingual and cross-lingual long-context capabilities.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "LIBRA", type: "test", sortable: true },
+                    { name: "Counting_Stars_ZH", type: "test", sortable: true },
+                    { name: "LongBench_ZH", type: "test", sortable: true },
+                    { name: "CLongEval", type: "test", sortable: true },
+                    { name: "LVEval_ZH", type: "test", sortable: true }
+                ]
+            },
+            "reward": { 
+                "tests": ["LongRewardBench", "MemRewardBench"],
+                "description": "Reward modeling capabilities for long context.",
+                "columns": [
+                    { name: "Rank", type: "fixed", sortable: true },
+                    { name: "Model", type: "fixed", sortable: false },
+                    { name: "Avg Score", type: "fixed", sortable: true },
+                    { name: "LongRewardBench", type: "test", sortable: true },
+                    { name: "MemRewardBench", type: "test", sortable: true }
+                ]
             }
+        }
         };
 
         // 状态管理
@@ -3146,29 +3169,39 @@
 
         // 准备表格显示用的数据
         function prepareModelData() {
-            // 根据当前选择的类型获取数据源
             const dataSource = currentModelType === "thinking" ? modelData.thinking : modelData.nonThinking;
             
             return Object.keys(dataSource).map(modelName => {
                 const scores = dataSource[modelName];
-                // 计算总平均分 (基于所有17项测试)
                 const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
                 
                 return {
                     name: modelName,
                     scores: scores,
                     avgScore: avgScore,
-                    // 预计算各维度分数
                     faithScore: calculateAbilityAverage(scores, modelData.capabilities.faithfulness.tests),
                     generalScore: calculateAbilityAverage(scores, modelData.capabilities.general.tests),
                     reasoningScore: calculateAbilityAverage(scores, modelData.capabilities.reasoning.tests),
                     retrievalScore: calculateAbilityAverage(scores, modelData.capabilities.retrieval.tests),
                     generationScore: calculateAbilityAverage(scores, modelData.capabilities.generation.tests),
-                    specializationScore: calculateAbilityAverage(scores, modelData.capabilities.specialization.tests),
+                    multilingualScore: calculateAbilityAverage(scores, modelData.capabilities.multilingual.tests), // 修改点
                     rewardScore: calculateAbilityAverage(scores, modelData.capabilities.reward.tests)
                 };
             });
         }
+
+    function getCapabilityScore(model, capabilityKey) {
+        switch(capabilityKey.toLowerCase()) {
+            case "faithfulness": return model.faithScore;
+            case "general": return model.generalScore;
+            case "reasoning": return model.reasoningScore;
+            case "retrieval": return model.retrievalScore;
+            case "generation": return model.generationScore;
+            case "multilingual": return model.multilingualScore; // 修改点
+            case "reward": return model.rewardScore;
+            default: return 0;
+        }
+    }
 
         // 获取特定测试的分数
         function getTestScore(model, testName) {
@@ -3343,7 +3376,7 @@
             "Reasoning": 70,
             "Retrieval": 100,
             "Generation": 100,
-            "Specialization": 80,
+            "Multilingual": 80, // 修改点：替换 Specialization
             "Reward": 80
         };
 
