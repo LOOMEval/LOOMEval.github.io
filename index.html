@@ -3209,19 +3209,6 @@
             return index !== -1 ? model.scores[index] : 0;
         }
 
-        // 获取特定维度的分数
-        function getCapabilityScore(model, capabilityKey) {
-            switch(capabilityKey.toLowerCase()) {
-                case "faithfulness": return model.faithScore;
-                case "general": return model.generalScore;
-                case "reasoning": return model.reasoningScore;
-                case "retrieval": return model.retrievalScore;
-                case "generation": return model.generationScore;
-                case "specialization": return model.specializationScore;
-                case "reward": return model.rewardScore;
-                default: return 0;
-            }
-        }
 
         // 获取当前排序列的分数（用于排序）
         function getSortValue(model) {
