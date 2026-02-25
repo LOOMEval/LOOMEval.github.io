@@ -477,7 +477,12 @@
             gap: 2rem;
             flex-wrap: wrap;
         }
-
+        .table-container {
+            overflow-x: auto;
+        }
+        .modern-table {
+            min-width: 1200px; /* 强制表格宽度，防止挤压 */
+        }
         .video-feature {
             display: flex;
             align-items: center;
@@ -2931,32 +2936,50 @@
             });
         }
 
-       // Model Performance Data
-       const modelData = {
-            scores: {
-                "Qwen3-14B": [35.64, 43.84, 74.94, 45.47, 59.15, 56.41, 21.26, 29.85, 100, 10.24, 85.75, 55.87],
-                "Qwen3-30B-A3B": [37.96, 40.61, 78.32, 43.24, 60.31, 48.96, 22.82, 28.42, 100, 14.14, 83.24, 56.09],
-                "Meta-Llama-3.1-8B-Instruct": [25.79, 39.7, 86.79, 37.94, 57.42, 37.68, 25.66, 30.4, 91, 33.64, 45.96, 51.24],
-                "c4ai-command-r7b-12-2024": [24.73, 42.68, 77.41, 37.16, 47.44, 35, 35.66, 33.33, 92.43, 20.09, 51.69, 47],
-                "glm-4-9b-chat": [30.66, 46.42, 85.25, 45.24, 55, 36.84, 23.33, 32, 65.27, 20.35, 43.9, 54.42],
-                "Qwen3-8B": [33.18, 41.15, 67.68, 38.62, 55.28, 52.32, 15.15, 27.25, 64, 8.06, 81.99, 51.78],
-                "Phi-3-mini-128k-instruct": [32.96, 39.87, 78.62, 38.31, 53.56, 31.04, 39.87, 24.02, 90, 35.14, 33.73, 38.86],
-                "Phi-4-mini-instruct": [24.2, 40.18, 76.7, 42.69, 53.56, 13.31, 30.93, 31.33, 92.61, 27.87, 41.27, 51.28],
-                "Qwen3-4B": [24.55, 39.03, 70.29, 39.32, 55.01, 42.06, 18.24, 32.52, 62, 13.05, 74.25, 46.92],
-                "Qwen2.5-7B-Instruct": [29.12, 44.63, 72.02, 40.85, 55.89, 38.25, 14.94, 27.33, 64.18, 13.97, 52.75, 50.23],
-                "Mistral-Nemo-Instruct-2407": [24.91, 42.47, 60.6, 39.75, 53.67, 21.12, 21.61, 21.34, 60.41, 16.98, 48.3, 49.25],
-                "GLM-4-9B": [21.59, 45.7, 55.96, 38.41, 46.33, 21.51, 17.18, 24, 47.15, 3.11, 74.89, 45.76],
-                "Llama-3.1-Nemotron-Nano-8B-v1": [14.11, 34.32, 42.51, 27.19, 28.78, 11.72, 6.57, 12.67, 43.73, 0.47, 38.99, 32.54],
-                "Llama-3.1-Nemotron-Nano-4B-v1.1": [10.11, 25.88, 38.85, 19.94, 22.67, 7.48, 6.69, 22.67, 28.38, 7.43, 45.68, 16.81]
+        const testSequence = [
+        "L_CiteEval", "LEval", "RULER", "LongBench_EN", 
+        "Counting_Stars_EN", "LVEval_EN", "LongBench_v2", 
+        "NIAH", "MRCR", "LongWriter", "LIBRA", 
+        "Counting_Stars_ZH", "LongBench_ZH", "CLongEval", 
+        "LVEval_ZH", "LongRewardBench", "MemRewardBench"
+    ];
+
+        // 2. 更新模型数据结构
+        const modelData = {
+            // 非思考模型数据
+            nonThinking: {
+                "GLM-4.5-Air": [64.21, 38.5, 87.33, 50.62, 71.71, 30.52, 36.8, 90.91, 40.41, 81.83, 52.53, 79.58, 53.9, 57.9, 33.59, 51.22, 67.17],
+                "Qwen3-Next-80B-A3B-Instruct": [48.51, 40.15, 85.71, 53.91, 68.95, 30.89, 41.85, 81.75, 39.02, 80.26, 52.46, 83.45, 51.51, 57.78, 34.04, 53.15, 64.32],
+                "Qwen3-235B-A22B": [47.13, 41.25, 78.58, 47.43, 65.12, 21.08, 36.8, 78, 46.83, 81.39, 58.82, 80.09, 52.21, 48.68, 26.51, 51.15, 70.71],
+                "Qwen3-14B": [45.55, 41.83, 78.97, 42.66, 54.2, 25.92, 33.5, 83.09, 37.17, 87.03, 53.73, 73.92, 55.49, 49.02, 32.08, 57.84, 67.67],
+                "Qwen3-32B": [44.37, 37.64, 82.01, 41.58, 64.08, 25.32, 36.4, 85.6, 31.95, 78, 55.86, 82.38, 52.95, 49.29, 27.71, 49.01, 68.18],
+                "GLM-4.7-Flash": [63.63, 36.48, 67.93, 43.79, 49.24, 24.9, 29.32, 79.28, 30.23, 62.36, 43.45, 77.58, 50.9, 53.02, 38.43, 43.21, 57.58],
+                "NVIDIA-Nemotron-3-Nano-30B": [36.97, 34.45, 94.15, 42.81, 36.32, 34.97, 29.2, 90.88, 32.69, 65.04, 44.28, 40.44, 40.83, 37.93, 33.38, 44.36, 55.05],
+                "Qwen2.5-14B-Instruct": [35.68, 38.52, 67.45, 39.35, 50.44, 25.52, 38.4, 82.43, 38.11, 57.25, 51.78, 58.22, 53.08, 37.29, 26.34, 51.38, 63.64],
+                "Llama-3.1-70B-Instruct": [40.3, 43.1, 79.16, 43.3, 40.92, 41.37, 34, 77.09, 29.06, 45.28, 58.59, 61.61, 48.7, 40.92, 36.5, 39.92, 58.08],
+                "Qwen3-30B-A3B": [43.74, 36.69, 62.06, 40.77, 46.32, 20.35, 26.8, 78.17, 34.62, 81.03, 48.92, 67.36, 55.69, 44.08, 29.11, 40.05, 52.02],
+                "Qwen3-8B": [37.8, 39.18, 67.27, 37.87, 44.28, 18.04, 30.8, 69.35, 35.63, 82.45, 48.55, 65.22, 47.51, 42.16, 24.29, 45.62, 67.17],
+                "Llama-3.1-8B-Instruct": [39.21, 35.05, 81.51, 37.84, 39.44, 29.09, 31.2, 89.76, 30.5, 48.3, 47.81, 47.12, 36.84, 35.27, 37.43, 34.45, 36.87],
+                "Qwen2.5-7B-Instruct": [23.56, 37.18, 58.33, 39.2, 42.8, 21.02, 30.8, 73.67, 29.05, 55.99, 50.1, 50.98, 49.25, 34.06, 28.99, 48.32, 59.09]
             },
-            sequence: [
-                "L_CiteEval", "LEval", "RULER", "longbench", 
-                "babilong", "Counting_Stars", "LVEval", 
-                "longbench_v2", "NIAH", "InfiniteBench", "LongWriter", "LIBRA"
-            ],
+            // 思考模型数据
+            thinking: {
+                "step-3.5-flash": [50.59, 44.21, 77.58, 54.84, 68.74, 23.28, 55.19, 75.49, 58.17, 71.23, 64.21, 80.67, 64.06, 63.17, 27.89, 50.89, 62.62],
+                "Qwen3-14B (Thinking)": [46.5, 43.32, 82.82, 50.22, 62.65, 27.46, 43.84, 83.82, 44.95, 80.68, 62.28, 82.86, 53.09, 47.4, 36.55, 49.18, 65.15],
+                "GLM-4.7-Flash (Thinking)": [59.66, 35.68, 75.25, 42.46, 31, 31.5, 0, 89.29, 70.69, 69.35, 67.61, 82.22, 42.18, 39.37, 38.73, 50.35, 63.13],
+                "Qwen3-32B (Thinking)": [40.1, 39.38, 84.94, 43.74, 65.13, 26.65, 46.31, 82.5, 50.37, 68.51, 63.37, 80.47, 50.09, 48.61, 34.03, 51.8, 71.72],
+                "Qwen3-235B (Thinking)": [45.8, 41.08, 83.28, 47.6, 63.25, 35.39, 44.8, 75.84, 45.4, 65.02, 66.51, 76.56, 50.73, 45, 34.3, 51.71, 72.22],
+                "Qwen3-4B-Thinking-2507": [45.76, 39.11, 80.81, 48.09, 71.43, 36.58, 38, 92.67, 43.16, 57.61, 65.94, 83.42, 53.35, 50.19, 39.78, 42.29, 68.18],
+                "aurora-alpha": [26.51, 37.04, 62.73, 50.64, 48.46, 43.27, 0, 81.07, 51.05, 66.87, 73.3, 58.56, 37.84, 33.28, 25.51, 40.53, 63.65],
+                "Qwen3-30B-A3B (Thinking)": [41.17, 39.3, 67.37, 47.5, 46.88, 23.99, 41.4, 69.62, 33.97, 74.94, 63.99, 57.9, 51.76, 45.81, 28.51, 39.51, 65.4],
+                "trinity-large-preview": [41.44, 41.95, 71.56, 54.66, 42.85, 25.9, 35.74, 82.63, 26.9, 31.7, 59.85, 64.55, 51.96, 44.2, 40.14, 46.97, 53.54],
+                "Qwen3-8B (Thinking)": [34.37, 40.38, 76.72, 42.17, 44.25, 21.57, 35.2, 69.55, 32.03, 74.76, 58.6, 71.7, 51.35, 39.86, 27.43, 39.26, 64.14]
+            },
+            sequence: testSequence,
+            // 3. 重新映射能力分类以匹配新数据
             capabilities: {
                 "overview": {
-                    "description": "Comprehensive analysis of model performance across all evaluation dimensions.",
+                    "description": "Comprehensive analysis across all evaluation dimensions.",
                     "columns": [
                         { name: "Rank", type: "fixed", sortable: true },
                         { name: "Model", type: "fixed", sortable: false },
@@ -2966,26 +2989,26 @@
                         { name: "Reasoning", type: "capability", sortable: true },
                         { name: "Retrieval", type: "capability", sortable: true },
                         { name: "Generation", type: "capability", sortable: true },
-                        { name: "Specialization", type: "capability", sortable: true }
+                        { name: "Specialization", type: "capability", sortable: true },
+                        { name: "Reward", type: "capability", sortable: true }
                     ]
                 },
-
                 "general": {
-                    "tests": ["LEval", "RULER", "longbench"],
-                    "description": "Comprehensive assessment of common NLP tasks including text understanding, classification, and information extraction.",
+                    "tests": ["LEval", "RULER", "LongBench_EN", "LongBench_ZH"],
+                    "description": "Assessment of text understanding across English and Chinese contexts.",
                     "columns": [
                         { name: "Rank", type: "fixed", sortable: true },
                         { name: "Model", type: "fixed", sortable: false },
                         { name: "Avg Score", type: "fixed", sortable: true },
                         { name: "LEval", type: "test", sortable: true },
                         { name: "RULER", type: "test", sortable: true },
-                        { name: "longbench", type: "test", sortable: true }
+                        { name: "LongBench_EN", type: "test", sortable: true },
+                        { name: "LongBench_ZH", type: "test", sortable: true }
                     ]
                 },
-
                 "faithfulness": {
                     "tests": ["L_CiteEval"],
-                    "description": "Evaluates model consistency with source information, measuring accuracy in citation and avoiding hallucinations.",
+                    "description": "Evaluates citation quality and hallucination avoidance.",
                     "columns": [
                         { name: "Rank", type: "fixed", sortable: true },
                         { name: "Model", type: "fixed", sortable: false },
@@ -2994,32 +3017,32 @@
                     ]
                 },
                 "reasoning": {
-                    "tests": ["Counting_Stars", "LVEval", "longbench_v2","babilong"],
-                    "description": "Advanced logical reasoning, mathematical computation, causal inference, and complex multi-step problem solving.",
+                    "tests": ["Counting_Stars_EN", "LVEval_EN", "LongBench_v2", "Counting_Stars_ZH", "LVEval_ZH"],
+                    "description": "Logic, math, and multi-step reasoning in both languages.",
                     "columns": [
                         { name: "Rank", type: "fixed", sortable: true },
                         { name: "Model", type: "fixed", sortable: false },
                         { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "Counting-Stars", type: "test", sortable: true },
-                        { name: "LVEval", type: "test", sortable: true },
-                        { name: "longbench_v2", type: "test", sortable: true },
-                        { name: "babilong", type: "test", sortable: true }
+                        { name: "Counting_Stars_EN", type: "test", sortable: true },
+                        { name: "LVEval_EN", type: "test", sortable: true },
+                        { name: "LongBench_v2", type: "test", sortable: true },
+                        { name: "LVEval_ZH", type: "test", sortable: true }
                     ]
                 },
                 "retrieval": {
-                    "tests": [ "InfiniteBench","NIAH"],
-                    "description": "Information localization and extraction from extensive contexts, testing long-document processing capabilities.",
+                    "tests": ["NIAH", "MRCR"],
+                    "description": "Needle-in-a-Haystack and Multi-Round Conversational Retrieval.",
                     "columns": [
                         { name: "Rank", type: "fixed", sortable: true },
                         { name: "Model", type: "fixed", sortable: false },
                         { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "InfiniteBench", type: "test", sortable: true },
                         { name: "NIAH", type: "test", sortable: true },
+                        { name: "MRCR", type: "test", sortable: true }
                     ]
                 },
                 "generation": {
                     "tests": ["LongWriter"],
-                    "description": "Creative and coherent text generation with contextual appropriateness and narrative consistency.",
+                    "description": "Long-form text generation quality.",
                     "columns": [
                         { name: "Rank", type: "fixed", sortable: true },
                         { name: "Model", type: "fixed", sortable: false },
@@ -3028,85 +3051,92 @@
                     ]
                 },
                 "specialization": {
-                    "tests": ["LIBRA"],
-                    "description": "Domain-specific expertise in specialized fields including law, medicine, programming, and scientific research.",
+                    "tests": ["LIBRA", "CLongEval"],
+                    "description": "Specialized domain knowledge tests.",
                     "columns": [
                         { name: "Rank", type: "fixed", sortable: true },
                         { name: "Model", type: "fixed", sortable: false },
                         { name: "Avg Score", type: "fixed", sortable: true },
-                        { name: "LIBRA", type: "test", sortable: true }
+                        { name: "LIBRA", type: "test", sortable: true },
+                        { name: "CLongEval", type: "test", sortable: true }
+                    ]
+                },
+                "reward": { // 新增的 Reward 分类
+                    "tests": ["LongRewardBench", "MemRewardBench"],
+                    "description": "Reward modeling capabilities for long context.",
+                    "columns": [
+                        { name: "Rank", type: "fixed", sortable: true },
+                        { name: "Model", type: "fixed", sortable: false },
+                        { name: "Avg Score", type: "fixed", sortable: true },
+                        { name: "LongRewardBench", type: "test", sortable: true },
+                        { name: "MemRewardBench", type: "test", sortable: true }
                     ]
                 }
             }
         };
 
-        // 改进的模型分类函数
-        function getModelClass(modelName) {
-            if (modelName.includes("Qwen")) return "Qwen";
-            if (modelName.includes("Llama") || modelName.includes("Meta-Llama")) return "Llama";
-            if (modelName.includes("Phi")) return "Phi";
-            if (modelName.includes("glm") || modelName.includes("GLM")) return "GLM";
-            if (modelName.includes("c4ai-command") || modelName.includes("command")) return "Command";
-            if (modelName.includes("Mistral")) return "Mistral";
-            return "Other";
-        }
-
-        // 更新颜色定义，确保与所有模型匹配
-        const modelColors = {
-            "Qwen3-30B-A3B": "#ff6b9d",
-            "Qwen3-14B": "#c44ace", 
-            "Meta-Llama-3.1-8B-Instruct": "#4ecdc4",
-            "Qwen3-8B": "#fce38a",
-            "Qwen3-4B": "#95e1d3",
-            "c4ai-command-r7b-12-2024": "#a8e6cf",
-            "glm-4-9b-chat": "#ffd3b6",
-            "Phi-3-mini-128k-instruct": "#ffaaa5",
-            "Phi-4-mini-instruct": "#ff8b94",
-            "Qwen2.5-7B-Instruct": "#c7ceea",
-            "Mistral-Nemo-Instruct-2407": "#b2e1d4",
-            "GLM-4-9B": "#fee77f",
-            "Llama-3.1-Nemotron-Nano-8B-v1": "#f4c2c2",
-            "Llama-3.1-Nemotron-Nano-4B-v1.1": "#d4a5a5"
-        };
-
-        // 动态生成完整的模型能力数据
-        function generateModelCapabilities() {
-            const capabilities = {};
-            
-            Object.keys(modelData.scores).forEach(model => {
-                const modelScores = modelData.scores[model];
-                
-                capabilities[model] = {
-                    "Faithfulness": calculateAbilityAverage(modelScores, modelData.capabilities.faithfulness.tests),
-                    "General": calculateAbilityAverage(modelScores, modelData.capabilities.general.tests),
-                    "Reasoning": calculateAbilityAverage(modelScores, modelData.capabilities.reasoning.tests),
-                    "Retrieval": calculateAbilityAverage(modelScores, modelData.capabilities.retrieval.tests),
-                    "Generation": calculateAbilityAverage(modelScores, modelData.capabilities.generation.tests),
-                    "Specialization": calculateAbilityAverage(modelScores, modelData.capabilities.specialization.tests)
-                };
-            });
-            
-            return capabilities;
-        }
-
-        // 完整的模型能力数据
-        const modelCapabilities = generateModelCapabilities();
-
-        // Leaderboard State
+        // 状态管理
+        let currentModelType = "nonThinking"; // 'nonThinking' or 'thinking'
         let currentCapability = "overview";
         let sortColumn = "Avg Score";
         let sortDirection = "desc";
         let models = [];
-
         let radarChart = null;
 
-        // Utility Functions
+        // 模型分类样式逻辑
+        function getModelClass(modelName) {
+            if (modelName.toLowerCase().includes("qwen")) return "Qwen";
+            if (modelName.toLowerCase().includes("llama")) return "Llama";
+            if (modelName.toLowerCase().includes("phi")) return "Phi";
+            if (modelName.toLowerCase().includes("glm")) return "GLM";
+            if (modelName.toLowerCase().includes("command") || modelName.includes("trinity")) return "Command";
+            if (modelName.toLowerCase().includes("mistral") || modelName.includes("nemo")) return "Mistral";
+            if (modelName.toLowerCase().includes("step")) return "Other"; // Step models
+            return "Other";
+        }
+
+        // 更新颜色定义 (增加新模型)
+        const modelColors = {
+            // Non-Thinking
+            "GLM-4.5-Air": "#8E24AA",
+            "Qwen3-Next-80B-A3B-Instruct": "#ff6b9d",
+            "Qwen3-235B-A22B": "#c44ace",
+            "Qwen3-14B": "#95e1d3",
+            "Qwen3-32B": "#4ecdc4",
+            "GLM-4.7-Flash": "#dcd6f7",
+            "NVIDIA-Nemotron-3-Nano-30B": "#76b041",
+            "Qwen2.5-14B-Instruct": "#a8e6cf",
+            "Llama-3.1-70B-Instruct": "#6baed6",
+            "Qwen3-30B-A3B": "#ff9f43",
+            "Qwen3-8B": "#feca57",
+            "Llama-3.1-8B-Instruct": "#54a0ff",
+            "Qwen2.5-7B-Instruct": "#5f27cd",
+            
+            // Thinking
+            "step-3.5-flash": "#00d2d3",
+            "Qwen3-14B (Thinking)": "#1dd1a1",
+            "GLM-4.7-Flash (Thinking)": "#5f27cd",
+            "Qwen3-32B (Thinking)": "#48dbfb",
+            "Qwen3-235B (Thinking)": "#ff6b6b",
+            "Qwen3-4B-Thinking-2507": "#f368e0",
+            "aurora-alpha": "#ff9f43",
+            "Qwen3-30B-A3B (Thinking)": "#ee5253",
+            "trinity-large-preview": "#0abde3",
+            "Qwen3-8B (Thinking)": "#10ac84"
+        };
+        
+        // 默认颜色回退
+        function getModelColor(name) {
+            return modelColors[name] || "#999999";
+        }
+
+        // 辅助函数：计算特定能力类别的平均分
         function calculateAbilityAverage(modelScores, tests) {
             const testIndices = tests.map(test => modelData.sequence.indexOf(test));
             let sum = 0;
             let count = 0;
             for (const index of testIndices) {
-                if (index !== -1) {
+                if (index !== -1 && modelScores[index] !== undefined) {
                     sum += modelScores[index];
                     count++;
                 }
@@ -3114,54 +3144,66 @@
             return count > 0 ? sum / count : 0;
         }
 
+        // 准备表格显示用的数据
         function prepareModelData() {
-            return Object.keys(modelData.scores).map(model => {
-                const modelScores = modelData.scores[model];
-                const avgScore = modelScores.reduce((sum, score) => sum + score, 0) / modelScores.length;
+            // 根据当前选择的类型获取数据源
+            const dataSource = currentModelType === "thinking" ? modelData.thinking : modelData.nonThinking;
+            
+            return Object.keys(dataSource).map(modelName => {
+                const scores = dataSource[modelName];
+                // 计算总平均分 (基于所有17项测试)
+                const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
                 
                 return {
-                    name: model,
-                    scores: modelScores,
+                    name: modelName,
+                    scores: scores,
                     avgScore: avgScore,
-                    faithScore: calculateAbilityAverage(modelScores, modelData.capabilities.faithfulness.tests),
-                    generalScore: calculateAbilityAverage(modelScores, modelData.capabilities.general.tests),
-                    reasoningScore: calculateAbilityAverage(modelScores, modelData.capabilities.reasoning.tests),
-                    retrievalScore: calculateAbilityAverage(modelScores, modelData.capabilities.retrieval.tests),
-                    generationScore: calculateAbilityAverage(modelScores, modelData.capabilities.generation.tests),
-                    specializationScore: calculateAbilityAverage(modelScores, modelData.capabilities.specialization.tests)
+                    // 预计算各维度分数
+                    faithScore: calculateAbilityAverage(scores, modelData.capabilities.faithfulness.tests),
+                    generalScore: calculateAbilityAverage(scores, modelData.capabilities.general.tests),
+                    reasoningScore: calculateAbilityAverage(scores, modelData.capabilities.reasoning.tests),
+                    retrievalScore: calculateAbilityAverage(scores, modelData.capabilities.retrieval.tests),
+                    generationScore: calculateAbilityAverage(scores, modelData.capabilities.generation.tests),
+                    specializationScore: calculateAbilityAverage(scores, modelData.capabilities.specialization.tests),
+                    rewardScore: calculateAbilityAverage(scores, modelData.capabilities.reward.tests)
                 };
             });
         }
 
+        // 获取特定测试的分数
         function getTestScore(model, testName) {
-            const normalizedTestName = testName.replace(/-/g, '_');
-            const testIndex = modelData.sequence.indexOf(normalizedTestName);
-            return testIndex !== -1 ? model.scores[testIndex] : 0;
+            const index = modelData.sequence.indexOf(testName);
+            return index !== -1 ? model.scores[index] : 0;
         }
 
-        function getCapabilityScore(model, capability) {
-            const capabilityName = capability.toLowerCase().replace(/\s+/g, '');
-            
-            switch(capabilityName) {
+        // 获取特定维度的分数
+        function getCapabilityScore(model, capabilityKey) {
+            switch(capabilityKey.toLowerCase()) {
                 case "faithfulness": return model.faithScore;
                 case "general": return model.generalScore;
                 case "reasoning": return model.reasoningScore;
                 case "retrieval": return model.retrievalScore;
                 case "generation": return model.generationScore;
                 case "specialization": return model.specializationScore;
+                case "reward": return model.rewardScore;
                 default: return 0;
             }
         }
 
-        function getAvgScore(model) {
+        // 获取当前排序列的分数（用于排序）
+        function getSortValue(model) {
+            if (sortColumn === "Avg Score") return model.avgScore;
             if (currentCapability === "overview") {
-                return model.avgScore;
-            } else {
-                return calculateAbilityAverage(model.scores, modelData.capabilities[currentCapability].tests);
+                return getCapabilityScore(model, sortColumn);
             }
+            // 如果是具体测试项
+            if (modelData.capabilities[currentCapability].tests && modelData.capabilities[currentCapability].tests.includes(sortColumn)) {
+                return getTestScore(model, sortColumn);
+            }
+            return 0;
         }
 
-        // Leaderboard Functions
+        // 渲染表头
         function renderTableHeader() {
             const headerRow = document.getElementById("table-header-row");
             headerRow.innerHTML = "";
@@ -3174,394 +3216,174 @@
                 
                 if (col.sortable) {
                     th.classList.add("sortable");
-                    
                     if (col.name === sortColumn) {
                         th.classList.add(sortDirection === "asc" ? "sorted-asc" : "sorted-desc");
                     }
-                    
                     th.addEventListener("click", () => {
-                        if (col.sortable) {
-                            if (sortColumn === col.name) {
-                                sortDirection = sortDirection === "asc" ? "desc" : "asc";
-                            } else {
-                                sortColumn = col.name;
-                                sortDirection = "desc";
-                            }
-                            renderTable();
+                        if (sortColumn === col.name) {
+                            sortDirection = sortDirection === "asc" ? "desc" : "asc";
+                        } else {
+                            sortColumn = col.name;
+                            sortDirection = "desc";
                         }
+                        renderTable();
                     });
                 }
-                
                 headerRow.appendChild(th);
             });
         }
 
+        // 渲染表格内容
         function renderTableBody() {
             const tbody = document.querySelector("#model-leaderboard tbody");
             tbody.innerHTML = "";
             
-            const sortedModels = [...models];
-            sortedModels.sort((a, b) => {
-                let aValue = 0, bValue = 0;
-                
-                if (sortColumn === "Rank") {
-                    return 0;
-                } else if (sortColumn === "Avg Score") {
-                    aValue = getAvgScore(a);
-                    bValue = getAvgScore(b);
-                } else if (currentCapability === "overview") {
-                    aValue = getCapabilityScore(a, sortColumn);
-                    bValue = getCapabilityScore(b, sortColumn);
-                } else if (modelData.capabilities[currentCapability].tests) {
-                    const normalizedSortColumn = sortColumn.replace(/-/g, '_');
-                    if (modelData.capabilities[currentCapability].tests.includes(normalizedSortColumn)) {
-                        aValue = getTestScore(a, sortColumn);
-                        bValue = getTestScore(b, sortColumn);
-                    }
-                }
-                
-                return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+            // 排序
+            const sortedModels = [...models].sort((a, b) => {
+                const valA = getSortValue(a);
+                const valB = getSortValue(b);
+                return sortDirection === "asc" ? valA - valB : valB - valA;
             });
             
             sortedModels.forEach((model, index) => {
-                const modelClass = getModelClass(model.name);
-                
                 const row = document.createElement("tr");
+                const columns = modelData.capabilities[currentCapability].columns;
                 
-                modelData.capabilities[currentCapability].columns.forEach(col => {
+                columns.forEach(col => {
                     const td = document.createElement("td");
                     
                     if (col.name === "Rank") {
                         td.textContent = index + 1;
-                        td.style.fontWeight = "bold";
+                        if(index < 3) td.style.fontWeight = "bold";
                         td.style.color = index === 0 ? "#ff6b9d" : (index === 1 ? "#c44ace" : (index === 2 ? "#4ecdc4" : "inherit"));
                     } else if (col.name === "Model") {
-                        td.innerHTML = `<span class="model-label ${modelClass}">${model.name}</span>`;
+                        td.innerHTML = `<span class="model-label ${getModelClass(model.name)}">${model.name}</span>`;
                         td.classList.add("model-col");
                     } else if (col.name === "Avg Score") {
-                        td.textContent = getAvgScore(model).toFixed(2);
-                        td.style.fontWeight = "bold";
-                    } else if (currentCapability === "overview" && 
-                              ["General","Faithfulness",  "Reasoning", "Retrieval", "Generation", "Specialization"].includes(col.name)) {
+                        td.textContent = model.avgScore.toFixed(2);
+                        td.style.fontWeight = "600";
+                    } else if (currentCapability === "overview" && col.type === "capability") {
                         td.textContent = getCapabilityScore(model, col.name).toFixed(2);
-                    } else if (modelData.capabilities[currentCapability].tests) {
-                        const normalizedColName = col.name.replace(/-/g, '_');
-                        if (modelData.capabilities[currentCapability].tests.includes(normalizedColName)) {
-                            td.textContent = getTestScore(model, col.name).toFixed(2);
-                        }
+                    } else if (col.type === "test") {
+                        td.textContent = getTestScore(model, col.name).toFixed(2);
                     }
                     
                     row.appendChild(td);
                 });
-                
                 tbody.appendChild(row);
             });
         }
 
-        function updateCapabilityInfo() {
-            const title = document.getElementById("info-title");
-            const description = document.getElementById("info-description");
-            
-            let displayName = currentCapability.charAt(0).toUpperCase() + currentCapability.slice(1);
-            
-            title.textContent = currentCapability === "overview" 
+        function renderTable() {
+            // 更新标题和描述
+            document.getElementById("info-title").textContent = currentCapability === "overview" 
                 ? "Model Performance Overview" 
-                : displayName + " Capability Analysis";
-            
-            description.textContent = modelData.capabilities[currentCapability].description;
-        }
+                : currentCapability.charAt(0).toUpperCase() + currentCapability.slice(1) + " Capability";
+            document.getElementById("info-description").textContent = modelData.capabilities[currentCapability].description;
 
-        function updateCapabilityButtons() {
+            renderTableHeader();
+            renderTableBody();
+            
+            // 更新 Capability 按钮状态
             document.querySelectorAll(".capability-btn").forEach(btn => {
-                if (btn.dataset.capability === currentCapability) {
-                    btn.classList.add("active");
-                } else {
-                    btn.classList.remove("active");
-                }
+                btn.classList.toggle("active", btn.dataset.capability === currentCapability);
             });
         }
 
-        function renderTable() {
-            updateCapabilityInfo();
-            renderTableHeader();
-            renderTableBody();
-            updateCapabilityButtons();
-        }
-
-        // Model Comparison Chart Functions
+        // ==========================================
+        // 雷达图相关逻辑
+        // ==========================================
+        
+        // 生成模型选择器 checkbox
         function createModelSelector() {
             const container = document.getElementById('modelCheckboxes');
+            container.innerHTML = ""; // 清空旧的
             
-            // 使用完整的模型数据
-            Object.keys(modelData.scores).forEach((model, index) => {  // 添加index参数
+            models.forEach((model, index) => {
                 const wrapper = document.createElement('div');
-                const isSelected = index < 4;  // 只选中前4个
+                // 默认选中前3个
+                const isSelected = index < 3;
                 wrapper.className = isSelected ? 'model-checkbox-wrapper active' : 'model-checkbox-wrapper';
                 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.id = `model-${model.replace(/\s+/g, '-').replace(/\./g, '_')}`;
-                checkbox.value = model;
-                checkbox.checked = isSelected;  // 根据isSelected决定是否选中
+                checkbox.value = model.name;
+                checkbox.checked = isSelected;
                 
-                // 缩短模型名称显示
-                let displayName = model;
-                if (model.includes('Qwen3-')) {
-                    displayName = model.replace('Qwen3-', 'Qwen3 ');
-                } else if (model.includes('Meta-Llama-3.1-8B-Instruct')) {
-                    displayName = 'Llama3.1-8B';
-                } else if (model.includes('c4ai-command-r7b-12-2024')) {
-                    displayName = 'Command-R7B';
-                } else if (model.includes('Phi-3-mini-128k-instruct')) {
-                    displayName = 'Phi-3-mini';
-                } else if (model.includes('Phi-4-mini-instruct')) {
-                    displayName = 'Phi-4-mini';
-                } else if (model.includes('Qwen2.5-7B-Instruct')) {
-                    displayName = 'Qwen2.5-7B';
-                } else if (model.includes('Mistral-Nemo-Instruct-2407')) {
-                    displayName = 'Mistral-Nemo';
-                } else if (model.includes('Llama-3.1-Nemotron-Nano-8B-v1')) {
-                    displayName = 'Nemotron-8B';
-                } else if (model.includes('Llama-3.1-Nemotron-Nano-4B-v1.1')) {
-                    displayName = 'Nemotron-4B';
-                }
-                
+                // 简化显示名称，去掉括号等
+                const shortName = model.name.replace(" (Thinking)", "").replace("-Instruct", "");
+
                 const label = document.createElement('label');
-                label.htmlFor = checkbox.id;
                 label.innerHTML = `
-                    <span class="color-indicator" style="background-color: ${modelColors[model]}"></span>
-                    ${displayName}
+                    <span class="color-indicator" style="background-color: ${getModelColor(model.name)}"></span>
+                    ${shortName}
                 `;
                 
                 wrapper.appendChild(checkbox);
                 wrapper.appendChild(label);
-                container.appendChild(wrapper);
                 
-                wrapper.addEventListener('click', function(e) {
+                // 点击事件
+                wrapper.addEventListener('click', (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
-                    
                     checkbox.checked = !checkbox.checked;
-                    
-                    if (checkbox.checked) {
-                        wrapper.classList.add('active');
-                    } else {
-                        wrapper.classList.remove('active');
-                    }
-                    
+                    wrapper.classList.toggle('active', checkbox.checked);
                     updateRadarChart();
                 });
                 
-                wrapper.addEventListener('dblclick', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                });
+                container.appendChild(wrapper);
             });
+            
+            updateRadarChart(); // 初始化图表
         }
 
-        function updateRadarChart() {
-            if (!radarChart) return;
-            
-            const selectedModels = [];
-            const checkboxes = document.querySelectorAll('#modelCheckboxes input[type="checkbox"]');
-            
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    selectedModels.push(checkbox.value);
-                }
-            });
-            
-            const labels = Object.keys(modelCapabilities[Object.keys(modelCapabilities)[0]]);
-            const datasets = selectedModels.map(model => {
-                const data = labels.map(label => modelCapabilities[model][label]);
-                
-                return {
-                    label: model,
-                    data: data,
-                    backgroundColor: 'transparent',
-                    borderColor: modelColors[model],
-                    pointBackgroundColor: modelColors[model],
-                    pointBorderColor: '#ffffff',
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: modelColors[model],
-                    pointRadius: 8,
-                    pointHoverRadius: 12,
-                    borderWidth: 4,
-                    pointBorderWidth: 3
-                };
-            });
-            
-            radarChart.data.datasets = datasets;
-            radarChart.update();
-        }
-
-        
-
-        // Event Listeners
-        document.addEventListener("DOMContentLoaded", function() {
-            initSunburstChart();
-            models = prepareModelData();
-            renderTable();
-            createModelSelector();
-            initRadarChart();
-
-            document.querySelectorAll(".capability-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    currentCapability = btn.dataset.capability;
-                    sortColumn = "Avg Score";
-                    sortDirection = "desc";
-                    renderTable();
-                });
-            });
-        });
-        const typeButtons = document.querySelectorAll(".type-btn");
-        const leaderboardTable = document.querySelector(".table-container");
-        const leaderboardControls = document.querySelector(".capability-controls");
-        const leaderboardInfo = document.getElementById("capability-info");
-        const legend = document.querySelector(".legend");
-
-        // 创建一个占位显示框
-        const emptyPlaceholder = document.createElement("div");
-        emptyPlaceholder.className = "empty-state";
-        emptyPlaceholder.style.display = "none";
-        emptyPlaceholder.innerHTML = `
-            <i class="fas fa-flask"></i>
-            <h3>Thinking Models Data Coming Soon</h3>
-            <p>We are currently evaluating models like o1, DeepSeek-R1, and other reasoning-focused architectures. Stay tuned!</p>
-        `;
-        leaderboardTable.parentNode.insertBefore(emptyPlaceholder, leaderboardTable);
-
-        typeButtons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                // 切换按钮状态
-                typeButtons.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-
-                const modelType = btn.dataset.type;
-
-                if (modelType === "thinking") {
-                    // 隐藏标准榜单内容
-                    leaderboardTable.style.display = "none";
-                    leaderboardControls.style.opacity = "0.3";
-                    leaderboardControls.style.pointerEvents = "none";
-                    leaderboardInfo.style.display = "none";
-                    legend.style.display = "none";
-                    
-                    // 显示空状态
-                    emptyPlaceholder.style.display = "block";
-                } else {
-                    // 恢复标准榜单内容
-                    leaderboardTable.style.display = "block";
-                    leaderboardControls.style.opacity = "1";
-                    leaderboardControls.style.pointerEvents = "auto";
-                    leaderboardInfo.style.display = "block";
-                    legend.style.display = "flex";
-                    
-                    // 隐藏空状态
-                    emptyPlaceholder.style.display = "none";
-                    
-                    // 重新渲染表格确保数据正确
-                    renderTable();
-                }
-            });
-        });
-        // 为每个维度定义不同的最大值
+        // 维度最大值（用于雷达图归一化）
         const dimensionMaxValues = {
-            "Faithfulness": 42,
-            "General": 75, 
-            "Reasoning": 50,
-            "Retrieval": 80,
+            "Faithfulness": 70,
+            "General": 80, 
+            "Reasoning": 70,
+            "Retrieval": 100,
             "Generation": 100,
-            "Specialization": 65,
-            "Reward": 100,
+            "Specialization": 80,
+            "Reward": 80
         };
 
-        // 数据归一化函数 - 将实际值转换为0-100的显示范围
-        function normalizeDataForDisplay(value, dimension) {
-            const maxValue = dimensionMaxValues[dimension] || 100;
-            // 将实际值按比例映射到0-100范围
-            return (value / maxValue) * 100;
-        }
-
-        // 反向归一化函数 - 用于工具提示显示实际值
-        function denormalizeDataForTooltip(normalizedValue, dimension) {
-            const maxValue = dimensionMaxValues[dimension] || 100;
-            return (normalizedValue / 100) * maxValue;
-        }
         function updateRadarChart() {
-            if (!radarChart) return;
-            
-            const selectedModels = [];
-            const checkboxes = document.querySelectorAll('#modelCheckboxes input[type="checkbox"]');
-            
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    selectedModels.push(checkbox.value);
-                }
-            });
-            
-            const labels = Object.keys(modelCapabilities[Object.keys(modelCapabilities)[0]]);
-            const datasets = selectedModels.map(model => {
-                // 对数据进行归一化处理
-                const data = labels.map(label => {
-                    const originalValue = modelCapabilities[model][label];
-                    return normalizeDataForDisplay(originalValue, label);
-                });
-                
-                return {
-                    label: model,
-                    data: data,
-                    backgroundColor: 'transparent',
-                    borderColor: modelColors[model],
-                    pointBackgroundColor: modelColors[model],
-                    pointBorderColor: '#ffffff',
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: modelColors[model],
-                    pointRadius: 8,
-                    pointHoverRadius: 12,
-                    borderWidth: 4,
-                    pointBorderWidth: 3
-                };
-            });
-            
-            radarChart.data.datasets = datasets;
-            radarChart.update();
-        }
-
-        function initRadarChart() {
             const ctx = document.getElementById('modelComparisonChart').getContext('2d');
-            const labels = Object.keys(modelCapabilities[Object.keys(modelCapabilities)[0]]);
             
-            // 获取选中的模型（只有前4个）
-            const selectedModels = [];
-            const checkboxes = document.querySelectorAll('#modelCheckboxes input[type="checkbox"]:checked');
-            checkboxes.forEach(checkbox => {
-                selectedModels.push(checkbox.value);
-            });
+            // 获取选中的模型
+            const selectedModelNames = Array.from(document.querySelectorAll('#modelCheckboxes input:checked')).map(cb => cb.value);
             
-            const datasets = selectedModels.map(model => {
-                // 对初始数据进行归一化处理
-                const data = labels.map(label => {
-                    const originalValue = modelCapabilities[model][label];
-                    return normalizeDataForDisplay(originalValue, label);
-                });
+            // 维度标签
+            const labels = ["General", "Faithfulness", "Reasoning", "Retrieval", "Generation", "Specialization", "Reward"];
+            
+            const datasets = selectedModelNames.map(name => {
+                const modelObj = models.find(m => m.name === name);
+                if (!modelObj) return null;
                 
+                // 获取数据并归一化 (0-100) 用于展示
+                const data = labels.map(label => {
+                    const rawVal = getCapabilityScore(modelObj, label);
+                    const maxVal = dimensionMaxValues[label] || 100;
+                    return (rawVal / maxVal) * 100;
+                });
+
                 return {
-                    label: model,
+                    label: name,
                     data: data,
-                    backgroundColor: 'transparent',
-                    borderColor: modelColors[model],
-                    pointBackgroundColor: modelColors[model],
-                    pointBorderColor: '#ffffff',
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: modelColors[model],
-                    pointRadius: 8,
-                    pointHoverRadius: 12,
-                    borderWidth: 4,
-                    pointBorderWidth: 3
+                    backgroundColor: 'rgba(0,0,0,0)',
+                    borderColor: getModelColor(name),
+                    pointBackgroundColor: getModelColor(name),
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: getModelColor(name),
+                    borderWidth: 2
                 };
-            });
-            
+            }).filter(d => d !== null);
+
+            if (radarChart) {
+                radarChart.destroy();
+            }
+
             radarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
@@ -3571,148 +3393,83 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false
-                    },
                     scales: {
                         r: {
-                            min: 0,
-                            max: 100, // 显示范围保持0-100
                             beginAtZero: true,
+                            max: 100,
                             ticks: {
                                 stepSize: 20,
-                                backdropColor: 'transparent',
-                                color: '#666666',
-                                font: {
-                                    size: 12,
-                                    weight: '500',
-                                    family: 'Nunito'
-                                },
-                                // 自定义刻度标签，显示每个维度的实际最大值比例
-                                callback: function(value, index, values) {
-                                    // 这里显示归一化后的值
-                                    return value;
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(255, 107, 157, 0.2)',
-                                lineWidth: 2
-                            },
-                            angleLines: {
-                                color: 'rgba(196, 74, 206, 0.3)',
-                                lineWidth: 2
+                                display: false // 隐藏具体的0-100数字，让图表更干净
                             },
                             pointLabels: {
-                                font: {
-                                    size: 14,
-                                    weight: '600',
-                                    family: 'Comfortaa'
-                                },
-                                color: '#c44ace',
-                                // 在标签中显示每个维度的最大值
-                                callback: function(label, index) {
-                                    const maxValue = dimensionMaxValues[label] || 100;
-                                    return `${label}`;
-                                }
+                                font: { size: 12, weight: 'bold' }
                             }
                         }
                     },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                boxWidth: 20,
-                                padding: 20,
-                                font: {
-                                    size: 14,
-                                    weight: '600',
-                                    family: 'Comfortaa'
-                                },
-                                color: '#333333',
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            },
-                            onClick: function(e, legendItem, legend) {
-                                const index = legendItem.datasetIndex;
-                                const chart = legend.chart;
-                                const meta = chart.getDatasetMeta(index);
-                                
-                                meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-                                
-                                const modelName = chart.data.datasets[index].label;
-                                const checkbox = document.querySelector(`input[value="${modelName}"]`);
-                                if (checkbox) {
-                                    checkbox.checked = !meta.hidden;
-                                    const wrapper = checkbox.closest('.model-checkbox-wrapper');
-                                    if (wrapper) {
-                                        wrapper.classList.toggle('active', !meta.hidden);
-                                    }
+                        tooltip: {
+                            callbacks: {
+                                // 提示框显示真实分数
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const dimension = context.label; // 维度名称
+                                    const normalizedVal = context.raw;
+                                    const maxVal = dimensionMaxValues[dimension] || 100;
+                                    const realVal = (normalizedVal / 100) * maxVal;
+                                    return `${label}: ${realVal.toFixed(2)}`;
                                 }
-                                
-                                chart.update();
                             }
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            titleColor: '#c44ace',
-                            bodyColor: '#333333',
-                            borderColor: '#ff6b9d',
-                            borderWidth: 2,
-                            padding: 12,
-                            titleFont: {
-                                size: 14,
-                                weight: 'bold',
-                                family: 'Comfortaa'
-                            },
-                            bodyFont: {
-                                size: 13,
-                                family: 'Nunito'
-                            },
-                            displayColors: false,
-                            callbacks: {
-                                title: function(tooltipItems) {
-                                    return tooltipItems[0].dataset.label;
-                                },
-                                label: function(context) {
-                                    const dimension = context.label;
-                                    const normalizedValue = context.raw;
-                                    const actualValue = denormalizeDataForTooltip(normalizedValue, dimension);
-                                    const maxValue = dimensionMaxValues[dimension] || 100;
-                                    
-                                    return `${dimension}: ${actualValue.toFixed(1)}/${maxValue} (${normalizedValue.toFixed(1)}%)`;
-                                }
-                            }
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true }
                         }
-                    },
-                    elements: {
-                        line: {
-                            tension: 0.2
-                        }
-                    },
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeOutBounce'
                     }
                 }
             });
         }
-        // Copy BibTeX Function
-        function copyBibTeX() {
-            const bibtex = document.getElementById('bibtex').textContent;
-            navigator.clipboard.writeText(bibtex).then(() => {
-                const button = document.querySelector('.copy-button');
-                const originalContent = button.innerHTML;
-                button.innerHTML = '✅ Copied!';
-                button.style.background = 'linear-gradient(135deg, #95e1d3, #4ecdc4)';
-                setTimeout(() => {
-                    button.innerHTML = originalContent;
-                    button.style.background = '';
-                }, 2000);
-            });
-        }
 
-        // Initialize Everything
-        function initEventListeners() {
+        // ==========================================
+        // 初始化与事件监听
+        // ==========================================
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. 初始化 Sunburst 图表 (保留之前的代码)
+            initSunburstChart();
+            renderBenchmarkCards();
+            renderImplementationCards();
+            initFrameworkEventListeners(); // 确保这些函数存在于之前的脚本中
+
+            // 2. 初始化 Leaderboard 数据
+            models = prepareModelData(); // 默认加载 nonThinking
+            renderTable();
+            createModelSelector();
+
+            // 3. 模型类型切换 (Thinking vs Non-Thinking)
+            const typeButtons = document.querySelectorAll(".type-btn");
+            typeButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    // 切换样式
+                    typeButtons.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+
+                    // 切换数据源
+                    const newType = btn.dataset.type === "thinking" ? "thinking" : "nonThinking";
+                    if (currentModelType !== newType) {
+                        currentModelType = newType;
+                        // 重置排序和模型列表
+                        sortColumn = "Avg Score";
+                        sortDirection = "desc";
+                        models = prepareModelData();
+                        
+                        // 重新渲染组件
+                        renderTable();
+                        createModelSelector(); // 这会重建checkbox并刷新图表
+                    }
+                });
+            });
+
+            // 4. Capability 切换
             document.querySelectorAll(".capability-btn").forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     currentCapability = e.target.dataset.capability;
@@ -3721,9 +3478,34 @@
                     renderTable();
                 });
             });
-        }
+            
+            // 5. 视频链接平滑滚动
+            const demoVideoLinks = document.querySelectorAll('a[href="#demo-video"]');
+            demoVideoLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault(); 
+                    const target = document.querySelector('.introduction.content-section.mt-20');
+                    if(target) target.scrollIntoView({behavior: "smooth", block: "center"});
+                });
+            });
+            
+            // 6. 复制 BibTeX
+            window.copyBibTeX = function() {
+                const bibtex = document.getElementById('bibtex').textContent;
+                navigator.clipboard.writeText(bibtex).then(() => {
+                    const button = document.querySelector('.copy-button');
+                    const originalContent = button.innerHTML;
+                    button.innerHTML = '✅ Copied!';
+                    button.style.background = '#2ECC71';
+                    setTimeout(() => {
+                        button.innerHTML = originalContent;
+                        button.style.background = '';
+                    }, 2000);
+                });
+            };
+        });
         
-        // Scroll animation observer
+        // 确保保留 observeElements 函数，用于动画
         function observeElements() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -3731,13 +3513,9 @@
                         entry.target.classList.add('animated');
                     }
                 });
-            }, {
-                threshold: 0.1
-            });
+            }, { threshold: 0.1 });
             
-            document.querySelectorAll('.animate-on-scroll').forEach(el => {
-                observer.observe(el);
-            });
+            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
         }
 
         // 平滑滚动到section中央的函数
